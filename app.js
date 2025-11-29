@@ -202,27 +202,38 @@ function makeDraggable(el) {
   let startLeft = 0;
   let startBottom = 0;
 
-  el.addEventListener("mousedown", e => {
+  function getClientPos(evt) {
+    if (evt.touches && evt.touches[0]) {
+      return { x: evt.touches[0].clientX, y: evt.touches[0].clientY };
+    }
+    return { x: evt.clientX, y: evt.clientY };
+  }
+
+  function dragStart(e) {
+    // don’t start drag if user grabbed resize/rotate handles
     if (
       e.target.classList.contains("resize-handle") ||
       e.target.classList.contains("rotate-handle")
-    )
+    ) {
       return;
+    }
 
     e.preventDefault();
     isDragging = true;
     el.style.cursor = "grabbing";
 
     const rect = roomCanvas.getBoundingClientRect();
-    startX = e.clientX;
-    startY = e.clientY;
+    const pos = getClientPos(e);
+    startX = pos.x;
+    startY = pos.y;
     startLeft = parseFloat(el.style.left);
     startBottom = parseFloat(el.style.bottom);
 
-    function onMouseMove(ev) {
+    function onMove(ev) {
       if (!isDragging) return;
-      const dx = ev.clientX - startX;
-      const dy = ev.clientY - startY;
+      const p = getClientPos(ev);
+      const dx = p.x - startX;
+      const dy = p.y - startY;
 
       const percentX = (dx / rect.width) * 100;
       const percentY = (dy / rect.height) * 100;
@@ -231,17 +242,29 @@ function makeDraggable(el) {
       el.style.bottom = `${startBottom - percentY}%`;
     }
 
-    function onMouseUp() {
+    function onEnd() {
       isDragging = false;
       el.style.cursor = "grab";
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onEnd);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+      window.removeEventListener("touchcancel", onEnd);
     }
 
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  });
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onEnd);
+    window.addEventListener("touchmove", onMove, { passive: false });
+    window.addEventListener("touchend", onEnd);
+    window.addEventListener("touchcancel", onEnd);
+  }
+
+  // mouse
+  el.addEventListener("mousedown", dragStart);
+  // touch
+  el.addEventListener("touchstart", dragStart, { passive: false });
 }
+
 
 // ===== RESIZING =====
 function makeResizable(wrapper, handle) {
@@ -249,84 +272,119 @@ function makeResizable(wrapper, handle) {
   let startX = 0;
   let startWidth = 0;
 
-  handle.addEventListener("mousedown", e => {
+  function getClientX(evt) {
+    if (evt.touches && evt.touches[0]) {
+      return evt.touches[0].clientX;
+    }
+    return evt.clientX;
+  }
+
+  function resizeStart(e) {
     e.stopPropagation();
     e.preventDefault();
     isResizing = true;
 
     const rect = roomCanvas.getBoundingClientRect();
-    startX = e.clientX;
+    startX = getClientX(e);
     startWidth = parseFloat(wrapper.style.width);
 
-    function onMouseMove(ev) {
+    function onMove(ev) {
       if (!isResizing) return;
-      const dx = ev.clientX - startX;
+      const x = getClientX(ev);
+      const dx = x - startX;
       const percentX = (dx / rect.width) * 100;
       let newWidth = startWidth + percentX;
 
-      if (newWidth < 4) newWidth = 4;   // tiny
-      if (newWidth > 80) newWidth = 80; // very big
+      if (newWidth < 4) newWidth = 4;
+      if (newWidth > 80) newWidth = 80;
 
       wrapper.style.width = `${newWidth}%`;
 
+      // keep your existing state update
       const entry = placedOverlays.find(p => p.el === wrapper);
       if (entry) entry.widthPercent = newWidth;
     }
 
-    function onMouseUp() {
+    function onEnd() {
       isResizing = false;
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onEnd);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+      window.removeEventListener("touchcancel", onEnd);
     }
 
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  });
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onEnd);
+    window.addEventListener("touchmove", onMove, { passive: false });
+    window.addEventListener("touchend", onEnd);
+    window.addEventListener("touchcancel", onEnd);
+  }
+
+  handle.addEventListener("mousedown", resizeStart);
+  handle.addEventListener("touchstart", resizeStart, { passive: false });
 }
 
 // ===== ROTATING =====
 function makeRotatable(wrapper, handle) {
   let isRotating = false;
 
-  handle.addEventListener("mousedown", e => {
+  function getClientPos(evt) {
+    if (evt.touches && evt.touches[0]) {
+      return { x: evt.touches[0].clientX, y: evt.touches[0].clientY };
+    }
+    return { x: evt.clientX, y: evt.clientY };
+  }
+
+  function rotateStart(e) {
     e.stopPropagation();
     e.preventDefault();
     isRotating = true;
     handle.style.cursor = "grabbing";
 
-    function onMouseMove(ev) {
+    function onMove(ev) {
       if (!isRotating) return;
 
       const rect = wrapper.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
 
-      const dx = ev.clientX - centerX;
-      const dy = ev.clientY - centerY;
+      const p = getClientPos(ev);
+      const dx = p.x - centerX;
+      const dy = p.y - centerY;
 
       const angleRad = Math.atan2(dy, dx);
       let angleDeg = (angleRad * 180) / Math.PI;
-      angleDeg += 90; // so 0deg faces "up"
+      angleDeg += 90;
 
       wrapper.dataset.angle = angleDeg.toString();
 
       const entry = placedOverlays.find(p => p.el === wrapper);
       if (entry) {
         entry.angle = angleDeg;
-        applyTransform(entry);
+        applyTransform(entry); // your existing function
       }
     }
 
-    function onMouseUp() {
+    function onEnd() {
       isRotating = false;
       handle.style.cursor = "grab";
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onEnd);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+      window.removeEventListener("touchcancel", onEnd);
     }
 
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  });
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onEnd);
+    window.addEventListener("touchmove", onMove, { passive: false });
+    window.addEventListener("touchend", onEnd);
+    window.addEventListener("touchcancel", onEnd);
+  }
+
+  handle.addEventListener("mousedown", rotateStart);
+  handle.addEventListener("touchstart", rotateStart, { passive: false });
 }
 
 // ===== SELECT =====
