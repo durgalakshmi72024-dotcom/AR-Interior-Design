@@ -164,6 +164,7 @@ body {
   cursor: grab;
   z-index: 5;
   transition: box-shadow 0.15s ease;
+  touch-action: none;  
 }
 
 .furniture-overlay img {
