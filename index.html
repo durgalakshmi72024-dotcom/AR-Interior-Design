@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,6 +11,7 @@
     <div class="top-bar-left">RoomDesigner</div>
     <nav class="top-bar-right">
       <a href="home.html" class="top-link active">Home</a>
+      <!-- already correct: designer.html -->
       <a href="designer.html" class="hero-btn hero-btn-primary">Start Designing</a>
       <a href="my-designs.html" class="top-link">My Designs</a>
       <a href="help.html" class="top-link">Help</a>
@@ -37,7 +38,8 @@
         </p>
 
         <div class="hero-actions">
-          <a href="index.html" class="hero-btn hero-btn-primary">Start Designing</a>
+          <!-- CHANGED: index.html -> designer.html -->
+          <a href="designer.html" class="hero-btn hero-btn-primary">Start Designing</a>
           <a href="my-designs.html" class="hero-btn hero-btn-outline">View My Designs</a>
         </div>
       </div>
@@ -84,7 +86,8 @@
           <div class="home-card-body">
             <h3>Warm Modern Living</h3>
             <p>Neutral sofa set, warm lighting and soft wall tones for a cosy family space.</p>
-            <a href="index.html" class="home-card-link">Try this layout →</a>
+            <!-- CHANGED: index.html -> designer.html -->
+            <a href="designer.html" class="home-card-link">Try this layout →</a>
           </div>
         </article>
 
@@ -95,7 +98,8 @@
           <div class="home-card-body">
             <h3>Minimal Bedroom Retreat</h3>
             <p>Clean lines, muted colours and simple furniture for a calm sleeping zone.</p>
-            <a href="index.html" class="home-card-link">Start with this look →</a>
+            <!-- CHANGED -->
+            <a href="designer.html" class="home-card-link">Start with this look →</a>
           </div>
         </article>
 
@@ -106,7 +110,8 @@
           <div class="home-card-body">
             <h3>Smart Study Corner</h3>
             <p>Compact desk, task lighting and storage ideas for productive work from home.</p>
-            <a href="index.html" class="home-card-link">Design a study →</a>
+            <!-- CHANGED -->
+            <a href="designer.html" class="home-card-link">Design a study →</a>
           </div>
         </article>
       </div>
@@ -121,9 +126,34 @@
 
   </main>
 
-  <!-- Simple footer year script, no app.js on home page -->
+  <!-- Small helper script for footer year + user name -->
   <script>
+    // Footer year
     document.getElementById("footerYear").textContent = new Date().getFullYear();
+
+    // Clickable user name / email in top bar
+    (function () {
+      const linkUser = document.getElementById("linkUser");
+      if (!linkUser) return;
+
+      const KEY_USER = "roomDesignerUserName";
+      const stored = localStorage.getItem(KEY_USER);
+      if (stored) {
+        linkUser.textContent = stored;
+      }
+
+      linkUser.addEventListener("click", function (e) {
+        e.preventDefault();
+        const current = localStorage.getItem(KEY_USER) || "";
+        const name = prompt("Enter your name or email for this project:", current);
+        if (name && name.trim()) {
+          const trimmed = name.trim();
+          localStorage.setItem(KEY_USER, trimmed);
+          linkUser.textContent = trimmed;
+        }
+      });
+    })();
   </script>
 </body>
 </html>
+
