@@ -1,125 +1,172 @@
-// Wall paint / texture options
-const WALL_PRESETS = [
-  { id: "wall_soft_white", label: "Soft White", color: "#f5f5f5" },
-  { id: "wall_warm_beige", label: "Warm Beige", color: "#f3e2c5" },
-  { id: "wall_cool_grey", label: "Cool Grey", color: "#d3d7dd" },
-  { id: "wall_olive", label: "Olive Accent", color: "#a2ad7e" }
+// WALL COLOUR OPTIONS WITH COST
+const WALL_OPTIONS = [
+  { id: "wall_white", label: "Soft White", color: "#f5f5f5", cost: 15000 },
+  { id: "wall_beige", label: "Warm Beige", color: "#f3e2c5", cost: 17000 },
+  { id: "wall_grey",  label: "Cool Grey",  color: "#d3d7dd", cost: 16000 },
+  { id: "wall_olive", label: "Olive Accent", color: "#a2ad7e", cost: 18000 },
+  { id: "wall_blue",  label: "Muted Blue", color: "#c3d9f5", cost: 16500 }
 ];
 
-// Flooring options (using texture images from web)
-const FLOOR_PRESETS = [
+// FURNITURE CATALOGUE – keep using local images or URLs
+const PRODUCTS = [
+  // Living – Sofas
   {
-    id: "floor_wood",
-    label: "Warm Wood",
-    image:
-      "https://images.pexels.com/photos/37347/wood-floor-flooring-floors.jpg?auto=compress&cs=tinysrgb&w=800"
-  },
-  {
-    id: "floor_light_tile",
-    label: "Light Tile",
-    image:
-      "https://images.pexels.com/photos/129731/pexels-photo-129731.jpeg?auto=compress&cs=tinysrgb&w=800"
-  },
-  {
-    id: "floor_dark_tile",
-    label: "Dark Tile",
-    image:
-      "https://images.pexels.com/photos/1454806/pexels-photo-1454806.jpeg?auto=compress&cs=tinysrgb&w=800"
-  }
-];
-
-// Lighting moods
-const LIGHT_PRESETS = [
-  { id: "light_none", label: "Normal", type: "none" },
-  { id: "light_warm", label: "Warm Evening", type: "warm" },
-  { id: "light_cool", label: "Cool Daylight", type: "cool" },
-  { id: "light_moody", label: "Moody", type: "moody" }
-];
-
-// Furniture sets per room type
-const FURNITURE_SETS = [
-  {
-    id: "living_modern",
-    label: "Living · Modern Set",
+    id: "lv_sofa1",
     roomType: "living",
-    items: [
-      { name: "3-Seater Sofa", price: 25000 },
-      { name: "Coffee Table", price: 6000 },
-      { name: "TV Unit", price: 12000 }
-    ],
-    overlays: [
-      {
-        image:
-          "https://pngimg.com/uploads/sofa/sofa_PNG6985.png",
-        left: "12%",
-        bottom: "6%"
-      },
-      {
-        image:
-          "https://pngimg.com/uploads/table/table_PNG7014.png",
-        left: "44%",
-        bottom: "6%"
-      },
-      {
-        image:
-          "https://pngimg.com/uploads/tv_stand/tv_stand_PNG62.png",
-        left: "75%",
-        bottom: "12%"
-      }
-    ]
+    category: "sofa",
+    name: "3-Seater Sofa",
+    price: 25000,
+    image: "images/sofa1.png"
   },
   {
-    id: "bedroom_cozy",
-    label: "Bedroom · Cozy Set",
+    id: "lv_sofa2",
+    roomType: "living",
+    category: "sofa",
+    name: "Fabric L-Shaped Sofa",
+    price: 34000,
+    image: "images/sofa2.png"
+  },
+  {
+    id: "lv_sofa3",
+    roomType: "living",
+    category: "sofa",
+    name: "Minimal 2-Seater Sofa",
+    price: 19000,
+    image: "images/sofa3.png"
+  },
+
+  // Living – Chairs
+  {
+    id: "lv_chair1",
+    roomType: "living",
+    category: "chair",
+    name: "Accent Armchair",
+    price: 12000,
+    image: "images/chair1.png"
+  },
+  {
+    id: "lv_chair2",
+    roomType: "living",
+    category: "chair",
+    name: "Reading Chair",
+    price: 11000,
+    image: "images/chair2.png"
+  },
+
+  // Living – Tables
+  {
+    id: "lv_table1",
+    roomType: "living",
+    category: "table",
+    name: "Coffee Table",
+    price: 6000,
+    image: "images/table1.png"
+  },
+  {
+    id: "lv_table2",
+    roomType: "living",
+    category: "table",
+    name: "Side Table",
+    price: 4000,
+    image: "images/table2.png"
+  },
+
+  // Living – Storage / TV
+  {
+    id: "lv_tv1",
+    roomType: "living",
+    category: "storage",
+    name: "TV Unit",
+    price: 15000,
+    image: "images/tv1.png"
+  },
+
+  // Living – Lighting
+  {
+    id: "lv_lamp1",
+    roomType: "living",
+    category: "lighting",
+    name: "Floor Lamp",
+    price: 4000,
+    image: "images/lamp1.png"
+  },
+  {
+    id: "lv_lamp2",
+    roomType: "living",
+    category: "lighting",
+    name: "Tripod Lamp",
+    price: 5500,
+    image: "images/lamp2.png"
+  },
+
+  // Bedroom
+  {
+    id: "bd_bed1",
     roomType: "bedroom",
-    items: [
-      { name: "Queen Bed", price: 28000 },
-      { name: "Side Tables (x2)", price: 8000 },
-      { name: "Wardrobe", price: 22000 }
-    ],
-    overlays: [
-      {
-        image:
-          "https://pngimg.com/uploads/bed/bed_PNG17486.png",
-        left: "50%",
-        bottom: "5%"
-      }
-    ]
+    category: "sofa",
+    name: "Queen Bed",
+    price: 28000,
+    image: "images/bed1.png"
   },
   {
-    id: "kitchen_linear",
-    label: "Kitchen · Linear Cabinets",
+    id: "bd_side1",
+    roomType: "bedroom",
+    category: "table",
+    name: "Bedside Table",
+    price: 5000,
+    image: "images/bedside.png"
+  },
+  {
+    id: "bd_wardrobe1",
+    roomType: "bedroom",
+    category: "storage",
+    name: "Wardrobe",
+    price: 22000,
+    image: "images/wardrobe1.png"
+  },
+
+  // Kitchen
+  {
+    id: "kt_cabinets",
     roomType: "kitchen",
-    items: [
-      { name: "Base Cabinets", price: 35000 },
-      { name: "Overhead Cabinets", price: 25000 },
-      { name: "Quartz Countertop", price: 30000 }
-    ],
-    overlays: [
-      {
-        image:
-          "https://pngimg.com/uploads/kitchen/kitchen_PNG17058.png",
-        left: "50%",
-        bottom: "5%"
-      }
-    ]
+    category: "storage",
+    name: "Modular Cabinets",
+    price: 35000,
+    image: "images/cabinets.png"
   },
   {
-    id: "bathroom_spa",
-    label: "Bathroom · Spa Style",
+    id: "kt_island",
+    roomType: "kitchen",
+    category: "table",
+    name: "Kitchen Island",
+    price: 25000,
+    image: "images/island.png"
+  },
+
+  // Bathroom
+  {
+    id: "bt_vanity",
     roomType: "bathroom",
-    items: [
-      { name: "Vanity Unit", price: 20000 },
-      { name: "Glass Shower Enclosure", price: 25000 },
-      { name: "Wall Tiles", price: 18000 }
-    ],
-    overlays: [
-      {
-        image:
-          "https://pngimg.com/uploads/bathroom/bathroom_PNG17430.png",
-        left: "50%",
-        bottom: "5%"
-      }
-    ]
+    category: "storage",
+    name: "Vanity Unit",
+    price: 20000,
+    image: "images/vanity.png"
+  },
+  {
+    id: "bt_vanity",
+    roomType: "bathroom",
+    category: "Bathtub",
+    name: "Vanity Unit",
+    price: 20000,
+    image: "images/bathtub.png"
+  },
+  {
+    id: "bt_shower",
+    roomType: "bathroom",
+    category: "storage",
+    name: "Shower Enclosure",
+    price: 25000,
+    image: "images/shower.png"
   }
 ];
+
