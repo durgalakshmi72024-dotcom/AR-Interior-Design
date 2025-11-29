@@ -2,117 +2,155 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AR Home Renovation Designer</title>
+  <title>Room Designer – AR Furniture Planner</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app">
-    <!-- HEADER -->
-    <header class="app-header">
-      <h1>AR Home Renovation Designer</h1>
-      <p>
-        Upload a photo of your room and try different wall paints, flooring,
-        lighting moods and furniture sets before you renovate.
-      </p>
-    </header>
+  <!-- Top purple strip -->
+  <header class="top-bar">
+    <div class="top-logo">RoomDesigner</div>
+    <nav class="top-links">
+      <a href="#" id="linkMyDesigns">My Designs</a>
+      <a href="#" id="linkHelp">Help</a>
+      <span class="top-user" id="linkUser">user@example.com</span>
+    </nav>
+  </header>
 
-    <main class="app-main">
-      <!-- LEFT: ROOM & CONTROLS -->
-      <section class="left-panel">
-        <!-- ROOM TYPE + IMAGE UPLOAD -->
-        <div class="card">
-          <h2>Step 1 · Room & Photo</h2>
-
-          <label class="field">
-            <span>Room type</span>
-            <select id="roomType">
-              <option value="living">Living Room</option>
-              <option value="bedroom">Bedroom</option>
-              <option value="kitchen">Kitchen</option>
-              <option value="bathroom">Bathroom</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Upload room photo</span>
-            <input type="file" id="roomImageInput" accept="image/*" />
-          </label>
-
-          <div id="roomContainer">
-            <img id="roomImage" src="" alt="Your room preview will appear here">
-            <!-- overlays will be added by JS -->
+  <main class="page">
+    <!-- LEFT SIDE -->
+    <section class="left-column">
+      <!-- Main room design card -->
+      <div class="design-card">
+        <div class="design-header">
+          <h2>My Design</h2>
+          <div class="design-nav">
+            <button class="icon-btn" id="btnPrevDesign">⟨</button>
+            <button class="icon-btn" id="btnNextDesign">⟩</button>
           </div>
         </div>
 
-        <!-- DESIGN TOOLS -->
-        <div class="card">
-          <h2>Step 2 · Design Tools</h2>
-
-          <div class="tool-group">
-            <h3>Wall Paint & Texture</h3>
-            <p class="hint">Try different wall colors and accent styles.</p>
-            <div class="chip-row" id="wallOptions"></div>
-          </div>
-
-          <div class="tool-group">
-            <h3>Flooring</h3>
-            <p class="hint">Experiment with tiles, wood and other floor types.</p>
-            <div class="chip-row" id="floorOptions"></div>
-          </div>
-
-          <div class="tool-group">
-            <h3>Lighting Mood</h3>
-            <p class="hint">See how warm or cool lighting changes the space.</p>
-            <div class="chip-row" id="lightOptions"></div>
-          </div>
-
-          <div class="tool-group">
-            <h3>Furniture & Layout</h3>
-            <p class="hint">
-              Choose a furniture set that matches your room type and style.
-            </p>
-            <div class="chip-row" id="furnitureOptions"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- RIGHT: SUMMARY -->
-      <section class="right-panel">
-        <div class="card">
-          <h2>Design Summary</h2>
-          <div id="summaryRoom"></div>
+        <!-- Room canvas -->
+        <div id="roomCanvas" class="room-canvas">
+          <img
+            id="roomImage"
+            src="https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200"
+            alt="Room"
+          />
+          <!-- wall colour overlay only -->
+          <div id="wallOverlay" class="wall-overlay"></div>
+          <!-- furniture overlays added by JS -->
         </div>
 
-        <div class="card">
-          <h2>Selected Furniture</h2>
-          <div id="selectedFurnitureList"></div>
+        <!-- Toolbar -->
+        <div class="canvas-toolbar">
+  <button class="pill-btn primary" id="btnRedesign">Re-Design</button>
+  <div class="toolbar-actions">
+    <button class="round-btn" id="btnCenterCamera" title="Center items">⟷</button>
+    <button class="round-btn" id="btnDownload" title="Download (demo)">⭳</button>
+    <button class="round-btn" id="btnZoomIn" title="Resize help">🔍＋</button>
+    <button class="round-btn" id="btnZoomOut" title="Resize help">🔍－</button>
+    <button class="round-btn" id="btnClear" title="Clear all furniture">🗑</button>
+
+    <!-- 👇 NEW MIRROR BUTTON -->
+    <button class="round-btn" id="btnMirror" title="Mirror">⇋</button>
+
+    <button class="round-btn" id="btnMore" title="More (demo)">⋯</button>
+  </div>
+</div>
+
+      </div>
+
+      <!-- Room info + upload -->
+      <div class="room-meta-card">
+        <div class="field">
+          <label>Room</label>
+          <select id="roomType">
+            <option value="living" selected>Living room</option>
+            <option value="bedroom">Bedroom</option>
+            <option value="kitchen">Kitchen</option>
+            <option value="bathroom">Bathroom</option>
+          </select>
         </div>
 
-        <div class="card">
-          <h2>Cost Estimate</h2>
-          <div class="cost-row">
-            <span>Furniture Cost</span>
-            <span>₹<span id="furnitureCost">0</span></span>
-          </div>
-          <div class="cost-row">
-            <span>Paint & Materials (approx.)</span>
-            <span>₹<span id="materialCost">0</span></span>
-          </div>
-          <div class="cost-row">
-            <span>Labour (20% of total)</span>
-            <span>₹<span id="labourCost">0</span></span>
-          </div>
-          <hr />
-          <div class="cost-row total">
-            <span>Total Renovation Estimate</span>
-            <span>₹<span id="totalCost">0</span></span>
-          </div>
+        <div class="field">
+          <label>Upload your own room image</label>
+          <input type="file" id="roomImageInput" accept="image/*" />
         </div>
-      </section>
-    </main>
+      </div>
+
+      <!-- Wall options only (tiles removed) -->
+      <div class="room-meta-card">
+        <h3>Walls</h3>
+        <p class="meta-hint">Choose paint colour. Cost updates on the right.</p>
+
+        <div class="field">
+          <label>Wall colour</label>
+          <div id="wallOptions" class="chip-row"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT SIDE -->
+    <section class="right-column">
+      <!-- Product suggestions -->
+      <div class="products-card">
+        <h2>Shop Similar Products</h2>
+        <p class="hint">
+          Click a product to add it inside the room. Drag to move, drag the blue corner
+          circle to resize, drag the green circle to rotate.
+        </p>
+
+        <div class="field small">
+          <label>Category</label>
+          <select id="productCategory">
+            <option value="all" selected>All</option>
+            <option value="sofa">Sofas</option>
+            <option value="chair">Chairs</option>
+            <option value="table">Tables</option>
+            <option value="storage">Storage</option>
+            <option value="lighting">Lighting</option>
+          </select>
+        </div>
+
+        <div id="productStrip" class="product-strip"></div>
+      </div>
+
+      <!-- Selected items & cost -->
+      <div class="summary-card">
+        <h2>Selected Items</h2>
+        <div id="selectedList"></div>
+        <hr />
+        <div class="cost-row">
+          <span>Furniture cost</span>
+          <span>₹<span id="furnitureCost">0</span></span>
+        </div>
+        <div class="cost-row">
+          <span>Wall paint cost</span>
+          <span>₹<span id="wallCost">0</span></span>
+        </div>
+        <div class="cost-row">
+          <span>Labour (20% of total)</span>
+          <span>₹<span id="labourCost">0</span></span>
+        </div>
+        <div class="cost-row total">
+          <span>Total renovation estimate</span>
+          <span>₹<span id="totalCost">0</span></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Top bar modal (for My Designs / Help / User) -->
+  <div id="topModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <button id="modalClose" class="modal-close">✕</button>
+      <div id="modalBody"></div>
+    </div>
   </div>
 
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
+
