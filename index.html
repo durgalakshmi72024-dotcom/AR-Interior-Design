@@ -2,154 +2,128 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Room Designer – AR Furniture Planner</title>
+  <title>AR RoomDesigner – Home</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Top purple strip -->
+  <!-- Top purple bar (same brand) -->
   <header class="top-bar">
-    <div class="top-logo">RoomDesigner</div>
-    <nav class="top-links">
-      <a href="#" id="linkMyDesigns">My Designs</a>
-      <a href="#" id="linkHelp">Help</a>
-    <a href="#" id="linkUser">user@example.com</a>
+    <div class="top-bar-left">RoomDesigner</div>
+    <nav class="top-bar-right">
+      <a href="home.html" class="top-link active">Home</a>
+      <a href="designer.html" class="hero-btn hero-btn-primary">Start Designing</a>
+      <a href="my-designs.html" class="top-link">My Designs</a>
+      <a href="help.html" class="top-link">Help</a>
+      <span id="linkUser" class="top-user">user@example.com</span>
     </nav>
   </header>
 
-  <main class="page">
-    <!-- LEFT SIDE -->
-    <section class="left-column">
-      <!-- Main room design card -->
-      <div class="design-card">
-        <div class="design-header">
-          <h2>My Design</h2>
-          <div class="design-nav">
-            <button class="icon-btn" id="btnPrevDesign">⟨</button>
-            <button class="icon-btn" id="btnNextDesign">⟩</button>
-          </div>
-        </div>
+  <main class="home-main">
 
-        <!-- Room canvas -->
-        <div id="roomCanvas" class="room-canvas">
-          <img
-            id="roomImage"
-            src="images/my-room-1.jpg"
-            alt="Room"
-          />
-          <!-- wall colour overlay only -->
-          <div id="wallOverlay" class="wall-overlay"></div>
-          <!-- furniture overlays added by JS -->
-        </div>
-
-        <!-- Toolbar -->
-        <div class="canvas-toolbar">
-  <button class="pill-btn primary" id="btnRedesign">Re-Design</button>
-  <button class="pill-btn primary" id="btnSaveDesign">Save Design</button>
-  <div class="toolbar-actions">
-    <button class="round-btn" id="btnCenterCamera" title="Center items">⟷</button>
-    <button class="round-btn" id="btnDownload" title="Download (demo)">⭳</button>
-    <button class="round-btn" id="btnZoomIn" title="Resize help">🔍＋</button>
-    <button class="round-btn" id="btnZoomOut" title="Resize help">🔍－</button>
-    <button class="round-btn" id="btnClear" title="Clear all furniture">🗑</button>
-
-    <!-- 👇 NEW MIRROR BUTTON -->
-    <button class="round-btn" id="btnMirror" title="Mirror">⇋</button>
-
-    <button class="round-btn" id="btnMore" title="More (demo)">⋯</button>
-  </div>
-</div>
-
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div class="hero-image">
+        <!-- Use any wide room photo you already have -->
+        <img src="images/living-hero.jpg" alt="Modern renovated living room" />
       </div>
+      <div class="hero-overlay"></div>
 
-      <!-- Room info + upload -->
-      <div class="room-meta-card">
-        <div class="field">
-          <label>Room</label>
-          <select id="roomType">
-            <option value="living" selected>Living room</option>
-            <option value="bedroom">Bedroom</option>
-            <option value="kitchen">Kitchen</option>
-            <option value="bathroom">Bathroom</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Upload your own room image</label>
-          <input type="file" id="roomImageInput" accept="image/*" />
-        </div>
-      </div>
-
-      <!-- Wall options only (tiles removed) -->
-      <div class="room-meta-card">
-        <h3>Walls</h3>
-        <p class="meta-hint">Choose paint colour. Cost updates on the right.</p>
-
-        <div class="field">
-          <label>Wall colour</label>
-          <div id="wallOptions" class="chip-row"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- RIGHT SIDE -->
-    <section class="right-column">
-      <!-- Product suggestions -->
-      <div class="products-card">
-        <h2>Shop Similar Products</h2>
-        <p class="hint">
-          Click a product to add it inside the room. Drag to move, drag the blue corner
-          circle to resize, drag the green circle to rotate.
+      <div class="hero-content">
+        <p class="hero-kicker">AR-powered home renovation</p>
+        <h1>See your new room <br />before you spend a rupee.</h1>
+        <p class="hero-subtitle">
+          Upload your room photo, try different furniture sets, wall paints and layouts,
+          then get an instant renovation cost estimate.
         </p>
 
-        <div class="field small">
-          <label>Category</label>
-          <select id="productCategory">
-            <option value="sofa">Sofas</option>
-            <option value="chair">Chairs</option>
-            <option value="table">Tables</option>
-            <option value="storage">Storage</option>
-            <option value="lighting">Lighting</option>
-          </select>
-        </div>
-
-        <div id="productStrip" class="product-strip"></div>
-      </div>
-
-      <!-- Selected items & cost -->
-      <div class="summary-card">
-        <h2>Selected Items</h2>
-        <div id="selectedList"></div>
-        <hr />
-        <div class="cost-row">
-          <span>Furniture cost</span>
-          <span>₹<span id="furnitureCost">0</span></span>
-        </div>
-        <div class="cost-row">
-          <span>Wall paint cost</span>
-          <span>₹<span id="wallCost">0</span></span>
-        </div>
-        <div class="cost-row">
-          <span>Labour (20% of total)</span>
-          <span>₹<span id="labourCost">0</span></span>
-        </div>
-        <div class="cost-row total">
-          <span>Total renovation estimate</span>
-          <span>₹<span id="totalCost">0</span></span>
+        <div class="hero-actions">
+          <a href="index.html" class="hero-btn hero-btn-primary">Start Designing</a>
+          <a href="my-designs.html" class="hero-btn hero-btn-outline">View My Designs</a>
         </div>
       </div>
     </section>
+
+    <!-- INTRO SECTION (like "Welcome to Smith & Sons") -->
+    <section class="section-container home-intro">
+      <div class="home-intro-text">
+        <h2>Design, plan and budget your renovation in one place.</h2>
+        <p>
+          AR RoomDesigner helps you experiment with layouts and styles without
+          moving a single piece of furniture. Drop virtual sofas, tables and decor
+          into your actual room photo, change wall colours and instantly see how
+          much the makeover will cost.
+        </p>
+        <ul class="home-list">
+          <li>Upload real photos of your living room, bedroom or study.</li>
+          <li>Place sofas, chairs, tables and decor right into the scene.</li>
+          <li>Resize, rotate and mirror items to match your layout.</li>
+          <li>Try different wall paint options and lighting moods.</li>
+          <li>See furniture, paint and labour costs update in real time.</li>
+        </ul>
+        <a href="help.html" class="hero-btn hero-btn-outline">Learn how it works</a>
+      </div>
+
+      <div class="home-intro-image">
+        <!-- You can reuse one of your designer images here -->
+        <img src="images/home-intro-room.jpg" alt="AR design preview on laptop" />
+      </div>
+    </section>
+
+    <!-- “RENOVATION GALLERY” STYLE SECTION -->
+    <section class="section-container home-gallery">
+      <div class="home-gallery-header">
+        <h2>Explore sample AR renovations</h2>
+        <p>Try these looks as inspiration, then customise them for your own room.</p>
+      </div>
+
+      <div class="home-gallery-grid">
+        <article class="home-card">
+          <div class="home-card-image">
+            <img src="images/gallery-living.jpg" alt="Warm living room design" />
+          </div>
+          <div class="home-card-body">
+            <h3>Warm Modern Living</h3>
+            <p>Neutral sofa set, warm lighting and soft wall tones for a cosy family space.</p>
+            <a href="index.html" class="home-card-link">Try this layout →</a>
+          </div>
+        </article>
+
+        <article class="home-card">
+          <div class="home-card-image">
+            <img src="images/gallery-bedroom.jpg" alt="Minimal bedroom design" />
+          </div>
+          <div class="home-card-body">
+            <h3>Minimal Bedroom Retreat</h3>
+            <p>Clean lines, muted colours and simple furniture for a calm sleeping zone.</p>
+            <a href="index.html" class="home-card-link">Start with this look →</a>
+          </div>
+        </article>
+
+        <article class="home-card">
+          <div class="home-card-image">
+            <img src="images/gallery-study.jpg" alt="Study room design" />
+          </div>
+          <div class="home-card-body">
+            <h3>Smart Study Corner</h3>
+            <p>Compact desk, task lighting and storage ideas for productive work from home.</p>
+            <a href="index.html" class="home-card-link">Design a study →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- SIMPLE FOOTER -->
+    <footer class="home-footer">
+      <div class="section-container home-footer-inner">
+        <p>© <span id="footerYear"></span> AR RoomDesigner. Built for smart home renovation planning.</p>
+      </div>
+    </footer>
+
   </main>
 
-  <!-- Top bar modal (for My Designs / Help / User) -->
-  <div id="topModal" class="modal hidden">
-    <div class="modal-backdrop"></div>
-    <div class="modal-content">
-      <button id="modalClose" class="modal-close">✕</button>
-      <div id="modalBody"></div>
-    </div>
-  </div>
-
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+  <!-- Simple footer year script, no app.js on home page -->
+  <script>
+    document.getElementById("footerYear").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
