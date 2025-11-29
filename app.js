@@ -1,268 +1,551 @@
-// ----- DOM ELEMENTS -----
+// ===== DOM REFERENCES =====
 const roomTypeSelect = document.getElementById("roomType");
 const roomImageInput = document.getElementById("roomImageInput");
 const roomImage = document.getElementById("roomImage");
-const roomContainer = document.getElementById("roomContainer");
+const roomCanvas = document.getElementById("roomCanvas");
 
-const wallOptions = document.getElementById("wallOptions");
-const floorOptions = document.getElementById("floorOptions");
-const lightOptions = document.getElementById("lightOptions");
-const furnitureOptions = document.getElementById("furnitureOptions");
+const wallOverlay = document.getElementById("wallOverlay");
+const wallOptionsEl = document.getElementById("wallOptions");
 
-const summaryRoom = document.getElementById("summaryRoom");
-const selectedFurnitureList = document.getElementById(
-  "selectedFurnitureList"
-);
+const productStrip = document.getElementById("productStrip");
+const productCategorySelect = document.getElementById("productCategory");
+
+const selectedList = document.getElementById("selectedList");
 const furnitureCostSpan = document.getElementById("furnitureCost");
-const materialCostSpan = document.getElementById("materialCost");
+const wallCostSpan = document.getElementById("wallCost");
 const labourCostSpan = document.getElementById("labourCost");
 const totalCostSpan = document.getElementById("totalCost");
 
-// ----- OVERLAY ELEMENTS -----
-const wallOverlay = document.createElement("div");
-wallOverlay.className = "wall-overlay";
+// toolbar & top bar buttons (if they exist)
+const btnRedesign = document.getElementById("btnRedesign");
+const btnCenterCamera = document.getElementById("btnCenterCamera");
+const btnDownload = document.getElementById("btnDownload");
+const btnZoomIn = document.getElementById("btnZoomIn");
+const btnZoomOut = document.getElementById("btnZoomOut");
+const btnClear = document.getElementById("btnClear");
+const btnMirror = document.getElementById("btnMirror");
+const btnMore = document.getElementById("btnMore");
+const btnPrevDesign = document.getElementById("btnPrevDesign");
+const btnNextDesign = document.getElementById("btnNextDesign");
+const linkMyDesigns = document.getElementById("linkMyDesigns");
+const linkHelp = document.getElementById("linkHelp");
+const linkUser = document.getElementById("linkUser");
 
-const floorOverlay = document.createElement("div");
-floorOverlay.className = "floor-overlay";
+// ===== STATE =====
+// mirrored = left/right flip
+let placedOverlays = []; // { item, el, widthPercent, angle, mirrored }
+let selectedOverlay = null;
+let selectedWall = WALL_OPTIONS[0]; // from data.js
 
-const lightOverlay = document.createElement("div");
-lightOverlay.className = "light-overlay";
-
-roomContainer.appendChild(wallOverlay);
-roomContainer.appendChild(floorOverlay);
-roomContainer.appendChild(lightOverlay);
-
-// will hold furniture overlay <img> elements
-let furnitureOverlayEls = [];
-
-// ----- STATE -----
-let selectedWall = WALL_PRESETS[0];
-let selectedFloor = FLOOR_PRESETS[0];
-let selectedLight = LIGHT_PRESETS[0];
-let selectedFurnitureSet = null;
-
-// ----- HELPERS -----
-function createChip(container, presetList, renderFn, isColor = false) {
-  container.innerHTML = "";
-
-  presetList.forEach((preset, index) => {
-    const btn = document.createElement("button");
-    btn.className = "chip";
-
-    if (isColor) {
-      const swatch = document.createElement("span");
-      swatch.className = "chip-color-swatch";
-      swatch.style.background = preset.color;
-
-      const label = document.createElement("span");
-      label.textContent = preset.label;
-
-      const wrap = document.createElement("span");
-      wrap.className = "chip-color";
-      wrap.appendChild(swatch);
-      wrap.appendChild(label);
-
-      btn.appendChild(wrap);
-    } else {
-      btn.textContent = preset.label;
-    }
-
-    if (index === 0) {
-      btn.classList.add("active");
-      renderFn(preset);
-    }
-
-    btn.addEventListener("click", () => {
-      container.querySelectorAll(".chip").forEach(c =>
-        c.classList.remove("active")
-      );
-      btn.classList.add("active");
-      renderFn(preset);
-    });
-
-    container.appendChild(btn);
+// ===== ROOM IMAGE UPLOAD =====
+if (roomImageInput) {
+  roomImageInput.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => {
+      roomImage.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
   });
 }
 
-// ----- APPLY FUNCTIONS -----
-function applyWall(preset) {
-  selectedWall = preset;
-  wallOverlay.style.background = preset ? preset.color : "transparent";
-  updateSummary();
+// ===== WALL OPTIONS =====
+function renderWallOptions() {
+  wallOptionsEl.innerHTML = "";
+  WALL_OPTIONS.forEach((opt, index) => {
+    const btn = document.createElement("button");
+    btn.className = "chip";
+    if (index === 0) btn.classList.add("active");
+
+    const swatch = document.createElement("span");
+    swatch.className = "chip-color-swatch";
+    swatch.style.background = opt.color;
+
+    const label = document.createElement("span");
+    label.textContent = opt.label;
+
+    btn.appendChild(swatch);
+    btn.appendChild(label);
+
+    btn.addEventListener("click", () => {
+      wallOptionsEl
+        .querySelectorAll(".chip")
+        .forEach(c => c.classList.remove("active"));
+      btn.classList.add("active");
+      selectedWall = opt;
+      applyWallOption();
+      updateCosts();
+    });
+
+    wallOptionsEl.appendChild(btn);
+
+    if (index === 0) {
+      selectedWall = opt;
+      applyWallOption();
+    }
+  });
+}
+
+function applyWallOption() {
+  if (!wallOverlay) return;
+  wallOverlay.style.backgroundColor = selectedWall.color;
+}
+
+// ===== PRODUCTS (RIGHT SIDE) =====
+function renderProducts() {
+  if (!productStrip) return;
+  const roomType = roomTypeSelect.value;
+  const category = productCategorySelect.value;
+
+  productStrip.innerHTML = "";
+
+  const filtered = PRODUCTS.filter(p => {
+    if (p.roomType !== roomType) return false;
+    if (category === "all") return true;
+    return p.category === category;
+  });
+
+  filtered.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "product-card";
+
+    const img = document.createElement("img");
+    img.src = item.image;
+    img.alt = item.name;
+
+    const nameEl = document.createElement("h3");
+    nameEl.textContent = item.name;
+
+    const priceEl = document.createElement("p");
+    priceEl.textContent = "₹" + item.price;
+
+    const btn = document.createElement("button");
+    btn.textContent = "Add to room";
+    btn.addEventListener("click", () => addItemToRoom(item));
+
+    card.appendChild(img);
+    card.appendChild(nameEl);
+    card.appendChild(priceEl);
+    card.appendChild(btn);
+
+    productStrip.appendChild(card);
+  });
+
+  if (filtered.length === 0) {
+    productStrip.textContent = "No items defined for this room and category.";
+  }
+}
+
+// ===== TRANSFORM HELPER (rotate + mirror) =====
+function applyTransform(entry) {
+  const angle = entry.angle || 0;
+  const scaleX = entry.mirrored ? -1 : 1;
+  entry.el.style.transform = `scaleX(${scaleX}) rotate(${angle}deg)`;
+}
+
+// ===== ADD FURNITURE TO ROOM =====
+function addItemToRoom(item) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "furniture-overlay";
+  wrapper.dataset.angle = "0";
+
+  const img = document.createElement("img");
+  img.src = item.image;
+  img.alt = item.name;
+
+  const resizeHandle = document.createElement("div");
+  resizeHandle.className = "resize-handle";
+
+  const rotateHandle = document.createElement("div");
+  rotateHandle.className = "rotate-handle";
+
+  wrapper.appendChild(img);
+  wrapper.appendChild(resizeHandle);
+  wrapper.appendChild(rotateHandle);
+
+  const baseWidth = 14; // 14% of canvas width
+  wrapper.style.width = baseWidth + "%";
+
+  const leftPercent = 10 + Math.random() * 70;
+  wrapper.style.left = leftPercent + "%";
+  wrapper.style.bottom = "6%";
+
+  makeDraggable(wrapper);
+  makeResizable(wrapper, resizeHandle);
+  makeRotatable(wrapper, rotateHandle);
+  makeSelectable(wrapper);
+
+  roomCanvas.appendChild(wrapper);
+
+  const entry = {
+    item,
+    el: wrapper,
+    widthPercent: baseWidth,
+    angle: 0,
+    mirrored: false
+  };
+  placedOverlays.push(entry);
+
+  applyTransform(entry); // initial
+
+  setSelectedOverlay(wrapper);
+  updateSelectedSummary();
   updateCosts();
 }
 
-function applyFloor(preset) {
-  selectedFloor = preset;
-  if (!preset) {
-    floorOverlay.style.backgroundImage = "none";
-  } else {
-    floorOverlay.style.backgroundImage = `url('${preset.image}')`;
-  }
-  updateSummary();
-  updateCosts();
+// ===== DRAGGING =====
+function makeDraggable(el) {
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startBottom = 0;
+
+  el.addEventListener("mousedown", e => {
+    if (
+      e.target.classList.contains("resize-handle") ||
+      e.target.classList.contains("rotate-handle")
+    )
+      return;
+
+    e.preventDefault();
+    isDragging = true;
+    el.style.cursor = "grabbing";
+
+    const rect = roomCanvas.getBoundingClientRect();
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = parseFloat(el.style.left);
+    startBottom = parseFloat(el.style.bottom);
+
+    function onMouseMove(ev) {
+      if (!isDragging) return;
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+
+      const percentX = (dx / rect.width) * 100;
+      const percentY = (dy / rect.height) * 100;
+
+      el.style.left = `${startLeft + percentX}%`;
+      el.style.bottom = `${startBottom - percentY}%`;
+    }
+
+    function onMouseUp() {
+      isDragging = false;
+      el.style.cursor = "grab";
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    }
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  });
 }
 
-function applyLight(preset) {
-  selectedLight = preset;
-  if (!preset || preset.type === "none") {
-    lightOverlay.style.background = "transparent";
-  } else if (preset.type === "warm") {
-    lightOverlay.style.background =
-      "radial-gradient(circle at top, rgba(255, 210, 170, 0.75), transparent 65%)";
-  } else if (preset.type === "cool") {
-    lightOverlay.style.background =
-      "radial-gradient(circle at top, rgba(180, 220, 255, 0.8), transparent 65%)";
-  } else if (preset.type === "moody") {
-    lightOverlay.style.background =
-      "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent 40%, rgba(0,0,0,0.8))";
-  }
-  updateSummary();
+// ===== RESIZING =====
+function makeResizable(wrapper, handle) {
+  let isResizing = false;
+  let startX = 0;
+  let startWidth = 0;
+
+  handle.addEventListener("mousedown", e => {
+    e.stopPropagation();
+    e.preventDefault();
+    isResizing = true;
+
+    const rect = roomCanvas.getBoundingClientRect();
+    startX = e.clientX;
+    startWidth = parseFloat(wrapper.style.width);
+
+    function onMouseMove(ev) {
+      if (!isResizing) return;
+      const dx = ev.clientX - startX;
+      const percentX = (dx / rect.width) * 100;
+      let newWidth = startWidth + percentX;
+
+      if (newWidth < 4) newWidth = 4;   // tiny
+      if (newWidth > 80) newWidth = 80; // very big
+
+      wrapper.style.width = `${newWidth}%`;
+
+      const entry = placedOverlays.find(p => p.el === wrapper);
+      if (entry) entry.widthPercent = newWidth;
+    }
+
+    function onMouseUp() {
+      isResizing = false;
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    }
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  });
 }
 
-function applyFurnitureSet(preset) {
-  selectedFurnitureSet = preset;
+// ===== ROTATING =====
+function makeRotatable(wrapper, handle) {
+  let isRotating = false;
 
-  // remove old overlays
-  furnitureOverlayEls.forEach(el => el.remove());
-  furnitureOverlayEls = [];
+  handle.addEventListener("mousedown", e => {
+    e.stopPropagation();
+    e.preventDefault();
+    isRotating = true;
+    handle.style.cursor = "grabbing";
 
-  if (!preset) {
-    selectedFurnitureList.innerHTML = "<p>No furniture selected.</p>";
-    updateCosts();
+    function onMouseMove(ev) {
+      if (!isRotating) return;
+
+      const rect = wrapper.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      const dx = ev.clientX - centerX;
+      const dy = ev.clientY - centerY;
+
+      const angleRad = Math.atan2(dy, dx);
+      let angleDeg = (angleRad * 180) / Math.PI;
+      angleDeg += 90; // so 0deg faces "up"
+
+      wrapper.dataset.angle = angleDeg.toString();
+
+      const entry = placedOverlays.find(p => p.el === wrapper);
+      if (entry) {
+        entry.angle = angleDeg;
+        applyTransform(entry);
+      }
+    }
+
+    function onMouseUp() {
+      isRotating = false;
+      handle.style.cursor = "grab";
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    }
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  });
+}
+
+// ===== SELECT =====
+function makeSelectable(el) {
+  el.addEventListener("click", e => {
+    e.stopPropagation();
+    setSelectedOverlay(el);
+  });
+}
+
+if (roomCanvas) {
+  roomCanvas.addEventListener("click", () => {
+    setSelectedOverlay(null);
+  });
+}
+
+function setSelectedOverlay(el) {
+  selectedOverlay = el;
+  document
+    .querySelectorAll(".furniture-overlay")
+    .forEach(node => node.classList.remove("selected"));
+  if (el) el.classList.add("selected");
+}
+
+// ===== SUMMARY & COST =====
+function updateSelectedSummary() {
+  selectedList.innerHTML = "";
+
+  if (placedOverlays.length === 0) {
+    selectedList.innerHTML = "<p>No items placed yet.</p>";
     return;
   }
 
-  // create overlays
-  preset.overlays.forEach(cfg => {
-    const img = document.createElement("img");
-    img.src = cfg.image;
-    img.className = "furniture-overlay";
-    img.style.left = cfg.left;
-    img.style.bottom = cfg.bottom;
-    roomContainer.appendChild(img);
-    furnitureOverlayEls.push(img);
+  const grouped = {};
+  placedOverlays.forEach(entry => {
+    const id = entry.item.id;
+    if (!grouped[id]) grouped[id] = { item: entry.item, count: 0 };
+    grouped[id].count += 1;
   });
 
-  // list in summary panel
-  selectedFurnitureList.innerHTML = "";
-  preset.items.forEach(item => {
+  Object.values(grouped).forEach(group => {
+    const { item, count } = group;
+    const cost = item.price * count;
+
     const row = document.createElement("div");
-    row.className = "item-row";
-    row.innerHTML = `<span>${item.name}</span><span>₹${item.price}</span>`;
-    selectedFurnitureList.appendChild(row);
-  });
+    row.className = "selected-row";
 
+    const label = document.createElement("span");
+    label.textContent = `${item.name} × ${count}`;
+
+    const price = document.createElement("span");
+    price.textContent = "₹" + cost;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "Remove";
+    removeBtn.addEventListener("click", () => removeItem(item.id));
+
+    row.appendChild(label);
+    row.appendChild(price);
+    row.appendChild(removeBtn);
+    selectedList.appendChild(row);
+  });
+}
+
+function removeItem(itemId) {
+  placedOverlays.forEach(entry => {
+    if (entry.item.id === itemId) entry.el.remove();
+  });
+  placedOverlays = placedOverlays.filter(entry => entry.item.id !== itemId);
+  if (selectedOverlay && !placedOverlays.find(p => p.el === selectedOverlay)) {
+    selectedOverlay = null;
+  }
+  updateSelectedSummary();
   updateCosts();
 }
 
-// ----- COST CALC -----
+// COST: furniture + wall + labour
 function updateCosts() {
-  // furniture
   let furnitureCost = 0;
-  if (selectedFurnitureSet) {
-    selectedFurnitureSet.items.forEach(item => {
-      furnitureCost += item.price;
-    });
-  }
+  placedOverlays.forEach(entry => {
+    furnitureCost += entry.item.price;
+  });
 
-  // simple formula for material cost depending on wall + floor selection
-  const wallBase = selectedWall ? 15000 : 0;
-  const floorBase = selectedFloor ? 20000 : 0;
-  const materialCost = wallBase + floorBase;
+  const wallCost = selectedWall ? selectedWall.cost : 0;
 
-  const subtotal = furnitureCost + materialCost;
-  const labour = Math.round(subtotal * 0.2);
-  const total = subtotal + labour;
+  const materialCost = furnitureCost + wallCost;
+  const labour = Math.round(materialCost * 0.2);
+  const total = materialCost + labour;
 
   furnitureCostSpan.textContent = furnitureCost;
-  materialCostSpan.textContent = materialCost;
+  wallCostSpan.textContent = wallCost;
   labourCostSpan.textContent = labour;
   totalCostSpan.textContent = total;
 }
 
-// ----- SUMMARY TEXT -----
-function updateSummary() {
-  const roomType = roomTypeSelect.value;
-  const roomLabelMap = {
-    living: "Living Room",
-    bedroom: "Bedroom",
-    kitchen: "Kitchen",
-    bathroom: "Bathroom"
-  };
-
-  summaryRoom.innerHTML = `
-    <p><strong>Room:</strong> ${roomLabelMap[roomType]}</p>
-    <p><strong>Wall:</strong> ${selectedWall ? selectedWall.label : "None"}</p>
-    <p><strong>Flooring:</strong> ${selectedFloor ? selectedFloor.label : "None"}</p>
-    <p><strong>Lighting:</strong> ${selectedLight ? selectedLight.label : "Normal"}</p>
-    <p><strong>Furniture Set:</strong> ${
-      selectedFurnitureSet ? selectedFurnitureSet.label : "None"
-    }</p>
-  `;
+// ===== CLEAR / RESET =====
+function clearAllFurniture() {
+  placedOverlays.forEach(entry => entry.el.remove());
+  placedOverlays = [];
+  selectedOverlay = null;
+  updateSelectedSummary();
+  updateCosts();
 }
 
-// ----- INIT CONTROL CHIPS -----
-createChip(wallOptions, WALL_PRESETS, applyWall, true);
-createChip(floorOptions, FLOOR_PRESETS, applyFloor);
-createChip(lightOptions, LIGHT_PRESETS, applyLight);
-
-// furniture chips depend on room type
-function refreshFurnitureOptions() {
-  const roomType = roomTypeSelect.value;
-  const optionsForRoom = FURNITURE_SETS.filter(
-    set => set.roomType === roomType
-  );
-
-  furnitureOptions.innerHTML = "";
-
-  if (optionsForRoom.length === 0) {
-    furnitureOptions.textContent = "No presets for this room yet.";
-    selectedFurnitureSet = null;
-    applyFurnitureSet(null);
-    return;
-  }
-
-  optionsForRoom.forEach((set, index) => {
-    const btn = document.createElement("button");
-    btn.className = "chip";
-    btn.textContent = set.label;
-
-    if (index === 0) {
-      btn.classList.add("active");
-      applyFurnitureSet(set);
-    }
-
-    btn.addEventListener("click", () => {
-      furnitureOptions.querySelectorAll(".chip").forEach(c =>
-        c.classList.remove("active")
-      );
-      btn.classList.add("active");
-      applyFurnitureSet(set);
-    });
-
-    furnitureOptions.appendChild(btn);
+// ===== TOOLBAR BUTTONS =====
+if (btnRedesign) {
+  btnRedesign.addEventListener("click", () => {
+    clearAllFurniture();
+    alert("Design reset. Add new furniture from the right panel.");
   });
 }
 
-refreshFurnitureOptions();
-updateSummary();
+if (btnCenterCamera) {
+  btnCenterCamera.addEventListener("click", () => {
+    placedOverlays.forEach(entry => {
+      entry.el.style.left = "40%";
+    });
+  });
+}
+
+if (btnDownload) {
+  btnDownload.addEventListener("click", () => {
+    alert(
+      "Download is a demo here. In a full version this would export your design as image/PDF."
+    );
+  });
+}
+
+if (btnZoomIn) {
+  btnZoomIn.addEventListener("click", () => {
+    alert("To resize furniture, drag the blue circle at its corner.");
+  });
+}
+
+if (btnZoomOut) {
+  btnZoomOut.addEventListener("click", () => {
+    alert("To resize furniture, drag the blue circle at its corner.");
+  });
+}
+
+if (btnClear) {
+  btnClear.addEventListener("click", () => {
+    clearAllFurniture();
+  });
+}
+
+// ===== MIRROR BUTTON (⇋) =====
+if (btnMirror) {
+  btnMirror.addEventListener("click", () => {
+    if (!selectedOverlay) {
+      alert("Select a furniture item first, then click Mirror (⇋).");
+      return;
+    }
+
+    const entry = placedOverlays.find(p => p.el === selectedOverlay);
+    if (!entry) return;
+
+    entry.mirrored = !entry.mirrored;
+    applyTransform(entry);
+  });
+}
+
+// simple info buttons (optional)
+if (btnMore) {
+  btnMore.addEventListener("click", () => {
+    alert("Future: save design, export AR view, share with contractor.");
+  });
+}
+if (btnPrevDesign) {
+  btnPrevDesign.addEventListener("click", () => {
+    alert("Previous design (demo only).");
+  });
+}
+if (btnNextDesign) {
+  btnNextDesign.addEventListener("click", () => {
+    alert("Next design (demo only).");
+  });
+}
+if (linkMyDesigns) {
+  linkMyDesigns.addEventListener("click", e => {
+    e.preventDefault();
+    const furnitureCount = placedOverlays.length;
+    alert(
+      `My Designs (demo)\n\nItems placed: ${furnitureCount}\nTotal cost: ₹${totalCostSpan.textContent}`
+    );
+  });
+}
+if (linkHelp) {
+  linkHelp.addEventListener("click", e => {
+    e.preventDefault();
+    alert(
+      "Help:\n1) Upload room image\n2) Pick wall colour\n3) Add furniture from right\n4) Drag to move\n5) Drag blue circle to resize\n6) Drag green circle to rotate\n7) Click ⇋ to mirror."
+    );
+  });
+}
+if (linkUser) {
+  linkUser.addEventListener("click", e => {
+    e.preventDefault();
+    alert("User account (demo only).");
+  });
+}
+
+// ===== ROOM TYPE & CATEGORY CHANGES =====
+if (roomTypeSelect) {
+  roomTypeSelect.addEventListener("change", () => {
+    clearAllFurniture();
+    renderProducts();
+  });
+}
+
+if (productCategorySelect) {
+  productCategorySelect.addEventListener("change", () => {
+    renderProducts();
+  });
+}
+
+// ===== INIT =====
+renderWallOptions();
+renderProducts();
+updateSelectedSummary();
 updateCosts();
 
-// ----- ROOM TYPE CHANGE -----
-roomTypeSelect.addEventListener("change", () => {
-  refreshFurnitureOptions();
-  updateSummary();
-});
-
-// ----- IMAGE UPLOAD -----
-roomImageInput.addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = evt => {
-    roomImage.src = evt.target.result;
-  };
-  reader.readAsDataURL(file);
-});
