@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AR Home Renovation Designer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- HEADER -->
+    <header class="app-header">
+      <h1>AR Home Renovation Designer</h1>
+      <p>
+        Upload a photo of your room and try different wall paints, flooring,
+        lighting moods and furniture sets before you renovate.
+      </p>
+    </header>
+
+    <main class="app-main">
+      <!-- LEFT: ROOM & CONTROLS -->
+      <section class="left-panel">
+        <!-- ROOM TYPE + IMAGE UPLOAD -->
+        <div class="card">
+          <h2>Step 1 · Room & Photo</h2>
+
+          <label class="field">
+            <span>Room type</span>
+            <select id="roomType">
+              <option value="living">Living Room</option>
+              <option value="bedroom">Bedroom</option>
+              <option value="kitchen">Kitchen</option>
+              <option value="bathroom">Bathroom</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Upload room photo</span>
+            <input type="file" id="roomImageInput" accept="image/*" />
+          </label>
+
+          <div id="roomContainer">
+            <img id="roomImage" src="" alt="Your room preview will appear here">
+            <!-- overlays will be added by JS -->
+          </div>
+        </div>
+
+        <!-- DESIGN TOOLS -->
+        <div class="card">
+          <h2>Step 2 · Design Tools</h2>
+
+          <div class="tool-group">
+            <h3>Wall Paint & Texture</h3>
+            <p class="hint">Try different wall colors and accent styles.</p>
+            <div class="chip-row" id="wallOptions"></div>
+          </div>
+
+          <div class="tool-group">
+            <h3>Flooring</h3>
+            <p class="hint">Experiment with tiles, wood and other floor types.</p>
+            <div class="chip-row" id="floorOptions"></div>
+          </div>
+
+          <div class="tool-group">
+            <h3>Lighting Mood</h3>
+            <p class="hint">See how warm or cool lighting changes the space.</p>
+            <div class="chip-row" id="lightOptions"></div>
+          </div>
+
+          <div class="tool-group">
+            <h3>Furniture & Layout</h3>
+            <p class="hint">
+              Choose a furniture set that matches your room type and style.
+            </p>
+            <div class="chip-row" id="furnitureOptions"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: SUMMARY -->
+      <section class="right-panel">
+        <div class="card">
+          <h2>Design Summary</h2>
+          <div id="summaryRoom"></div>
+        </div>
+
+        <div class="card">
+          <h2>Selected Furniture</h2>
+          <div id="selectedFurnitureList"></div>
+        </div>
+
+        <div class="card">
+          <h2>Cost Estimate</h2>
+          <div class="cost-row">
+            <span>Furniture Cost</span>
+            <span>₹<span id="furnitureCost">0</span></span>
+          </div>
+          <div class="cost-row">
+            <span>Paint & Materials (approx.)</span>
+            <span>₹<span id="materialCost">0</span></span>
+          </div>
+          <div class="cost-row">
+            <span>Labour (20% of total)</span>
+            <span>₹<span id="labourCost">0</span></span>
+          </div>
+          <hr />
+          <div class="cost-row total">
+            <span>Total Renovation Estimate</span>
+            <span>₹<span id="totalCost">0</span></span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
