@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AR RoomDesigner – Home</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Top purple bar (same brand) -->
+  <header class="top-bar">
+    <div class="top-bar-left">RoomDesigner</div>
+    <nav class="top-bar-right">
+      <a href="home.html" class="top-link active">Home</a>
+      <a href="index.html" class="top-link">Start Designing</a>
+      <a href="my-designs.html" class="top-link">My Designs</a>
+      <a href="help.html" class="top-link">Help</a>
+      <span id="linkUser" class="top-user">user@example.com</span>
+    </nav>
+  </header>
+
+  <main class="home-main">
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div class="hero-image">
+        <!-- Use any wide room photo you already have -->
+        <img src="images/living-hero.jpg" alt="Modern renovated living room" />
+      </div>
+      <div class="hero-overlay"></div>
+
+      <div class="hero-content">
+        <p class="hero-kicker">AR-powered home renovation</p>
+        <h1>See your new room <br />before you spend a rupee.</h1>
+        <p class="hero-subtitle">
+          Upload your room photo, try different furniture sets, wall paints and layouts,
+          then get an instant renovation cost estimate.
+        </p>
+
+        <div class="hero-actions">
+          <a href="index.html" class="hero-btn hero-btn-primary">Start Designing</a>
+          <a href="my-designs.html" class="hero-btn hero-btn-outline">View My Designs</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTRO SECTION (like "Welcome to Smith & Sons") -->
+    <section class="section-container home-intro">
+      <div class="home-intro-text">
+        <h2>Design, plan and budget your renovation in one place.</h2>
+        <p>
+          AR RoomDesigner helps you experiment with layouts and styles without
+          moving a single piece of furniture. Drop virtual sofas, tables and decor
+          into your actual room photo, change wall colours and instantly see how
+          much the makeover will cost.
+        </p>
+        <ul class="home-list">
+          <li>Upload real photos of your living room, bedroom or study.</li>
+          <li>Place sofas, chairs, tables and decor right into the scene.</li>
+          <li>Resize, rotate and mirror items to match your layout.</li>
+          <li>Try different wall paint options and lighting moods.</li>
+          <li>See furniture, paint and labour costs update in real time.</li>
+        </ul>
+        <a href="help.html" class="hero-btn hero-btn-outline">Learn how it works</a>
+      </div>
+
+      <div class="home-intro-image">
+        <!-- You can reuse one of your designer images here -->
+        <img src="images/home-intro-room.jpg" alt="AR design preview on laptop" />
+      </div>
+    </section>
+
+    <!-- “RENOVATION GALLERY” STYLE SECTION -->
+    <section class="section-container home-gallery">
+      <div class="home-gallery-header">
+        <h2>Explore sample AR renovations</h2>
+        <p>Try these looks as inspiration, then customise them for your own room.</p>
+      </div>
+
+      <div class="home-gallery-grid">
+        <article class="home-card">
+          <div class="home-card-image">
+            <img src="images/gallery-living.jpg" alt="Warm living room design" />
+          </div>
+          <div class="home-card-body">
+            <h3>Warm Modern Living</h3>
+            <p>Neutral sofa set, warm lighting and soft wall tones for a cosy family space.</p>
+            <a href="index.html" class="home-card-link">Try this layout →</a>
+          </div>
+        </article>
+
+        <article class="home-card">
+          <div class="home-card-image">
+            <img src="images/gallery-bedroom.jpg" alt="Minimal bedroom design" />
+          </div>
+          <div class="home-card-body">
+            <h3>Minimal Bedroom Retreat</h3>
+            <p>Clean lines, muted colours and simple furniture for a calm sleeping zone.</p>
+            <a href="index.html" class="home-card-link">Start with this look →</a>
+          </div>
+        </article>
+
+        <article class="home-card">
+          <div class="home-card-image">
+            <img src="images/gallery-study.jpg" alt="Study room design" />
+          </div>
+          <div class="home-card-body">
+            <h3>Smart Study Corner</h3>
+            <p>Compact desk, task lighting and storage ideas for productive work from home.</p>
+            <a href="index.html" class="home-card-link">Design a study →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- SIMPLE FOOTER -->
+    <footer class="home-footer">
+      <div class="section-container home-footer-inner">
+        <p>© <span id="footerYear"></span> AR RoomDesigner. Built for smart home renovation planning.</p>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Simple footer year script, no app.js on home page -->
+  <script>
+    document.getElementById("footerYear").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

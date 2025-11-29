@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Designs – RoomDesigner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .designs-wrap {
+      max-width: 960px;
+      margin: 24px auto 40px;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 20px 20px 26px;
+      box-shadow: 0 16px 35px rgba(15, 23, 42, 0.15);
+    }
+    .design-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+    }
+    .design-row:last-child {
+      border-bottom: none;
+    }
+    .design-meta {
+      display: flex;
+      flex-direction: column;
+    }
+    .design-actions button {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-left: 6px;
+    }
+    .btn-open {
+      background: #6b3df5;
+      color: white;
+    }
+    .btn-delete {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <span class="logo-dot"></span>
+      <span class="logo-text">RoomDesigner</span>
+    </div>
+    <nav class="top-bar-right">
+      <a href="home.html">Home</a>
+      <a href="index.html">Design</a>
+      <a href="help.html">Help</a>
+    </nav>
+  </header>
+
+  <div class="designs-wrap">
+    <h2>My Saved Designs</h2>
+    <p style="color:#6b7280;font-size:13px">
+      These are saved locally in your browser. Click <b>Open</b> to load a design into the editor.
+    </p>
+
+    <div id="designList"></div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "roomDesignerDesigns";
+
+    function loadAllDesigns() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+    }
+
+    function saveAllDesigns(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    }
+
+    function renderDesigns() {
+      const container = document.getElementById("designList");
+      const designs = loadAllDesigns();
+
+      container.innerHTML = "";
+
+      if (designs.length === 0) {
+        container.innerHTML = "<p>No designs saved yet. Go to the designer and click <b>Save Design</b>.</p>";
+        return;
+      }
+
+      designs
+        .slice()
+        .sort((a, b) => b.id - a.id)
+        .forEach(design => {
+          const row = document.createElement("div");
+          row.className = "design-row";
+
+          const meta = document.createElement("div");
+          meta.className = "design-meta";
+          meta.innerHTML = `
+            <strong>${design.name}</strong>
+            <span style="color:#6b7280;font-size:12px">
+              Room: ${design.roomType} · Items: ${design.furniture.length} · Total: ₹${design.costs.total}
+            </span>
+          `;
+
+          const actions = document.createElement("div");
+          actions.className = "design-actions";
+
+          const openBtn = document.createElement("button");
+          openBtn.className = "btn-open";
+          openBtn.textContent = "Open";
+          openBtn.addEventListener("click", () => {
+            // open index.html with ?designId=...
+            location.href = "index.html?designId=" + design.id;
+          });
+
+          const delBtn = document.createElement("button");
+          delBtn.className = "btn-delete";
+          delBtn.textContent = "Delete";
+          delBtn.addEventListener("click", () => {
+            const filtered = loadAllDesigns().filter(d => d.id !== design.id);
+            saveAllDesigns(filtered);
+            renderDesigns();
+          });
+
+          actions.appendChild(openBtn);
+          actions.appendChild(delBtn);
+
+          row.appendChild(meta);
+          row.appendChild(actions);
+          container.appendChild(row);
+        });
+    }
+
+    renderDesigns();
+  </script>
+</body>
+</html>

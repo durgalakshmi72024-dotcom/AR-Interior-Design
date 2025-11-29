@@ -37,6 +37,55 @@ let placedOverlays = []; // { item, el, widthPercent, angle, mirrored }
 let selectedOverlay = null;
 let selectedWall = WALL_OPTIONS[0]; // from data.js
 
+// ========= SAVE / LOAD DESIGNS (localStorage) =========
+const STORAGE_KEY = "roomDesignerDesigns";
+
+function loadAllDesigns() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error("Failed to load designs", e);
+    return [];
+  }
+}
+
+function saveAllDesigns(list) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+function snapshotCurrentDesign() {
+  const id = Date.now();
+
+  const snap = {
+    id,
+    name: `Design ${new Date().toLocaleString()}`,
+    roomType: roomTypeSelect ? roomTypeSelect.value : "living",
+    wallId: selectedWall ? selectedWall.id : null,
+    furniture: placedOverlays.map(entry => ({
+      productId: entry.item.id,
+      left: parseFloat(entry.el.style.left),
+      bottom: parseFloat(entry.el.style.bottom),
+      widthPercent: entry.widthPercent || parseFloat(entry.el.style.width),
+      angle: entry.angle || 0,
+      mirrored: !!entry.mirrored,
+    })),
+    costs: {
+      furniture: Number(furnitureCostSpan.textContent || 0),
+      wall: Number(wallCostSpan.textContent || 0),
+      labour: Number(labourCostSpan.textContent || 0),
+      total: Number(totalCostSpan.textContent || 0),
+    },
+  };
+
+  const all = loadAllDesigns();
+  all.push(snap);
+  saveAllDesigns(all);
+
+  return snap;
+}
+
 // ===== ROOM IMAGE UPLOAD =====
 if (roomImageInput) {
   roomImageInput.addEventListener("change", e => {
@@ -183,7 +232,7 @@ function addItemToRoom(item) {
     el: wrapper,
     widthPercent: baseWidth,
     angle: 0,
-    mirrored: false
+    mirrored: false,
   };
   placedOverlays.push(entry);
 
@@ -264,7 +313,6 @@ function makeDraggable(el) {
   // touch
   el.addEventListener("touchstart", dragStart, { passive: false });
 }
-
 
 // ===== RESIZING =====
 function makeResizable(wrapper, handle) {
@@ -531,6 +579,20 @@ if (btnClear) {
   });
 }
 
+const btnSaveDesign = document.getElementById("btnSaveDesign");
+if (btnSaveDesign) {
+  btnSaveDesign.addEventListener("click", () => {
+    if (placedOverlays.length === 0) {
+      alert("Place at least one furniture item before saving.");
+      return;
+    }
+    const snap = snapshotCurrentDesign();
+    alert(
+      `Design saved!\n\nName: ${snap.name}\nTotal cost: ₹${snap.costs.total}`
+    );
+  });
+}
+
 // ===== MIRROR BUTTON (⇋) =====
 if (btnMirror) {
   btnMirror.addEventListener("click", () => {
@@ -580,12 +642,8 @@ if (linkHelp) {
     );
   });
 }
-if (linkUser) {
-  linkUser.addEventListener("click", e => {
-    e.preventDefault();
-    alert("User account (demo only).");
-  });
-}
+
+// (old linkUser demo handler removed, replaced below)
 
 // ===== ROOM TYPE & CATEGORY CHANGES =====
 if (roomTypeSelect) {
@@ -601,9 +659,109 @@ if (productCategorySelect) {
   });
 }
 
+function restoreDesignById(designId) {
+  const all = loadAllDesigns();
+  const design = all.find(d => String(d.id) === String(designId));
+  if (!design) return;
+
+  // clear current
+  clearAllFurniture();
+
+  if (roomTypeSelect) {
+    roomTypeSelect.value = design.roomType || "living";
+  }
+
+  // wall
+  if (design.wallId && Array.isArray(WALL_OPTIONS)) {
+    const found = WALL_OPTIONS.find(w => w.id === design.wallId);
+    if (found) {
+      selectedWall = found;
+      applyWallOption();
+    }
+  }
+
+  // furniture items
+  design.furniture.forEach(f => {
+    const prod = PRODUCTS.find(p => p.id === f.productId);
+    if (!prod) return;
+    // create overlay
+    const wrapper = document.createElement("div");
+    wrapper.className = "furniture-overlay";
+    wrapper.dataset.angle = String(f.angle || 0);
+
+    const img = document.createElement("img");
+    img.src = prod.image;
+    img.alt = prod.name;
+
+    const resizeHandle = document.createElement("div");
+    resizeHandle.className = "resize-handle";
+
+    const rotateHandle = document.createElement("div");
+    rotateHandle.className = "rotate-handle";
+
+    wrapper.appendChild(img);
+    wrapper.appendChild(resizeHandle);
+    wrapper.appendChild(rotateHandle);
+
+    wrapper.style.width = (f.widthPercent || 14) + "%";
+    wrapper.style.left = (f.left || 40) + "%";
+    wrapper.style.bottom = (f.bottom || 6) + "%";
+
+    roomCanvas.appendChild(wrapper);
+
+    const entry = {
+      item: prod,
+      el: wrapper,
+      widthPercent: f.widthPercent || 14,
+      angle: f.angle || 0,
+      mirrored: !!f.mirrored,
+    };
+    placedOverlays.push(entry);
+
+    makeDraggable(wrapper);
+    makeResizable(wrapper, resizeHandle);
+    makeRotatable(wrapper, rotateHandle);
+    makeSelectable(wrapper);
+    applyTransform(entry);
+  });
+
+  updateSelectedSummary();
+  updateCosts();
+}
+
+// ===== USER NAME / EMAIL STORAGE =====
+if (linkUser) {
+  const KEY_USER = "roomDesignerUserName";
+  const stored = localStorage.getItem(KEY_USER);
+  if (stored) {
+    linkUser.textContent = stored;
+  }
+
+  linkUser.addEventListener("click", e => {
+    e.preventDefault();
+    const current = localStorage.getItem(KEY_USER) || "";
+    const name = prompt(
+      "Enter your name or email for this project:",
+      current
+    );
+    if (name && name.trim()) {
+      localStorage.setItem(KEY_USER, name.trim());
+      linkUser.textContent = name.trim();
+    }
+  });
+}
+
 // ===== INIT =====
 renderWallOptions();
 renderProducts();
 updateSelectedSummary();
 updateCosts();
 
+// if URL has ?designId=..., restore that design
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const designId = params.get("designId");
+  if (designId) {
+    restoreDesignById(designId);
+  }
+})();

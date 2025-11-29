@@ -12,7 +12,7 @@
     <nav class="top-links">
       <a href="#" id="linkMyDesigns">My Designs</a>
       <a href="#" id="linkHelp">Help</a>
-      <span class="top-user" id="linkUser">user@example.com</span>
+    <a href="#" id="linkUser">user@example.com</a>
     </nav>
   </header>
 
@@ -33,7 +33,7 @@
         <div id="roomCanvas" class="room-canvas">
           <img
             id="roomImage"
-            src="https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200"
+            src="images/my-room-1.jpg"
             alt="Room"
           />
           <!-- wall colour overlay only -->
@@ -44,6 +44,7 @@
         <!-- Toolbar -->
         <div class="canvas-toolbar">
   <button class="pill-btn primary" id="btnRedesign">Re-Design</button>
+  <button class="pill-btn primary" id="btnSaveDesign">Save Design</button>
   <div class="toolbar-actions">
     <button class="round-btn" id="btnCenterCamera" title="Center items">⟷</button>
     <button class="round-btn" id="btnDownload" title="Download (demo)">⭳</button>
@@ -103,7 +104,6 @@
         <div class="field small">
           <label>Category</label>
           <select id="productCategory">
-            <option value="all" selected>All</option>
             <option value="sofa">Sofas</option>
             <option value="chair">Chairs</option>
             <option value="table">Tables</option>
@@ -153,4 +153,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-

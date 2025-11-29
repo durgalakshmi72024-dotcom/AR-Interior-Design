@@ -169,4 +169,3 @@ const PRODUCTS = [
     image: "images/shower.png"
   }
 ];
-
