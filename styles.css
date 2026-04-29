@@ -150,8 +150,10 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  mix-blend-mode: multiply;
-  opacity: 0.65;
+  background: transparent;
+  opacity: 0.35;
+  z-index: 2;
+  transition: 0.3s ease;
 }
 
 /* Furniture wrapper (for move + resize + rotate) */
@@ -743,3 +745,83 @@ body {
     padding: 0 1.25rem;
   }
 }
+/* CUSTOM PRODUCT FORM FIX */
+/* CUSTOM PRODUCT BOX */
+
+.products-card .room-meta-card {
+  margin-top: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: none;
+}
+
+.products-card .room-meta-card h3 {
+  margin-bottom: 14px;
+  font-size: 20px;
+}
+
+.products-card .field {
+  margin-bottom: 14px;
+}
+
+.products-card .field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.products-card .field input,
+.products-card .field select {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  background: white;
+}
+
+.products-card input[type="file"] {
+  height: auto;
+  padding: 10px;
+}
+
+#btnAddCustomProduct {
+  margin-top: 10px;
+}
+/* .products-card .room-meta-card {
+  margin-top: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  box-shadow: none;
+}
+
+.products-card .field {
+  margin-bottom: 14px;
+}
+
+.products-card .field input,
+.products-card .field select {
+  width: 100%;
+  height: 46px;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+  background: white;
+}
+
+.products-card input[type="file"] {
+  padding: 10px;
+  height: auto;
+}
+
+#btnAddCustomProduct {
+  margin-top: 8px;
+} */

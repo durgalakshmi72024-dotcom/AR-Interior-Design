@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Room Designer – AR Furniture Planner</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
   <!-- Top purple strip -->
   <header class="top-bar">
@@ -12,7 +14,7 @@
     <nav class="top-links">
       <a href="#" id="linkMyDesigns">My Designs</a>
       <a href="#" id="linkHelp">Help</a>
-    <a href="#" id="linkUser">user@example.com</a>
+      <a href="#" id="linkUser">user@example.com</a>
     </nav>
   </header>
 
@@ -31,11 +33,7 @@
 
         <!-- Room canvas -->
         <div id="roomCanvas" class="room-canvas">
-          <img
-            id="roomImage"
-            src="images/my-room-1.jpg"
-            alt="Room"
-          />
+          <img id="roomImage" src="images/my-room-1.jpg" alt="Room" />
           <!-- wall colour overlay only -->
           <div id="wallOverlay" class="wall-overlay"></div>
           <!-- furniture overlays added by JS -->
@@ -43,21 +41,21 @@
 
         <!-- Toolbar -->
         <div class="canvas-toolbar">
-  <button class="pill-btn primary" id="btnRedesign">Re-Design</button>
-  <button class="pill-btn primary" id="btnSaveDesign">Save Design</button>
-  <div class="toolbar-actions">
-    <button class="round-btn" id="btnCenterCamera" title="Center items">⟷</button>
-    <button class="round-btn" id="btnDownload" title="Download (demo)">⭳</button>
-    <button class="round-btn" id="btnZoomIn" title="Resize help">🔍＋</button>
-    <button class="round-btn" id="btnZoomOut" title="Resize help">🔍－</button>
-    <button class="round-btn" id="btnClear" title="Clear all furniture">🗑</button>
+          <button class="pill-btn primary" id="btnRedesign">Re-Design</button>
+          <button class="pill-btn primary" id="btnSaveDesign">Save Design</button>
+          <div class="toolbar-actions">
+            <button class="round-btn" id="btnCenterCamera" title="Center items">⟷</button>
+            <button class="round-btn" id="btnDownload" title="Download (demo)">⭳</button>
+            <button class="round-btn" id="btnZoomIn" title="Resize help">🔍＋</button>
+            <button class="round-btn" id="btnZoomOut" title="Resize help">🔍－</button>
+            <button class="round-btn" id="btnClear" title="Clear all furniture">🗑</button>
 
-    <!-- 👇 NEW MIRROR BUTTON -->
-    <button class="round-btn" id="btnMirror" title="Mirror">⇋</button>
+            <!-- 👇 NEW MIRROR BUTTON -->
+            <button class="round-btn" id="btnMirror" title="Mirror">⇋</button>
 
-    <button class="round-btn" id="btnMore" title="More (demo)">⋯</button>
-  </div>
-</div>
+            <button class="round-btn" id="btnMore" title="More (demo)">⋯</button>
+          </div>
+        </div>
 
       </div>
 
@@ -102,6 +100,40 @@
         </p>
 
         <div class="field small">
+          <div class="room-meta-card">
+            <h3>Add Your Own Product</h3>
+
+            <div class="field">
+              <label>Product Name</label>
+              <input type="text" id="customProductName" placeholder="Enter product name" />
+            </div>
+
+            <div class="field">
+              <label>Category</label>
+              <select id="customProductCategory">
+                <option value="sofa">Sofa</option>
+                <option value="chair">Chair</option>
+                <option value="table">Table</option>
+                <option value="storage">Storage</option>
+                <option value="lighting">Lighting</option>
+                <option value="appliance">Appliance</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Price (₹)</label>
+              <input type="number" id="customProductPrice" placeholder="Enter price" />
+            </div>
+
+            <div class="field">
+              <label>Upload Product Image</label>
+              <input type="file" id="customProductImage" accept="image/*" />
+            </div>
+
+            <button class="pill-btn primary" id="btnAddCustomProduct">
+              Add Product
+            </button>
+          </div>
           <label>Category</label>
           <select id="productCategory">
             <option value="sofa">Sofas</option>
@@ -152,4 +184,5 @@
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>
