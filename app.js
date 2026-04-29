@@ -9,6 +9,11 @@ const wallOptionsEl = document.getElementById("wallOptions");
 
 const productStrip = document.getElementById("productStrip");
 const productCategorySelect = document.getElementById("productCategory");
+const customProductName = document.getElementById("customProductName");
+const customProductCategory = document.getElementById("customProductCategory");
+const customProductPrice = document.getElementById("customProductPrice");
+const customProductImage = document.getElementById("customProductImage");
+const btnAddCustomProduct = document.getElementById("btnAddCustomProduct");
 
 const selectedList = document.getElementById("selectedList");
 const furnitureCostSpan = document.getElementById("furnitureCost");
@@ -34,6 +39,7 @@ const linkUser = document.getElementById("linkUser");
 // ===== STATE =====
 // mirrored = left/right flip
 let placedOverlays = []; // { item, el, widthPercent, angle, mirrored }
+let uploadedProducts = [];
 let selectedOverlay = null;
 let selectedWall = WALL_OPTIONS[0]; // from data.js
 
@@ -137,8 +143,9 @@ function renderWallOptions() {
 }
 
 function applyWallOption() {
-  if (!wallOverlay) return;
-  wallOverlay.style.backgroundColor = selectedWall.color;
+  if (!wallOverlay || !selectedWall) return;
+
+  wallOverlay.style.background = selectedWall.color;
 }
 
 // ===== PRODUCTS (RIGHT SIDE) =====
@@ -149,11 +156,15 @@ function renderProducts() {
 
   productStrip.innerHTML = "";
 
-  const filtered = PRODUCTS.filter(p => {
-    if (p.roomType !== roomType) return false;
-    if (category === "all") return true;
-    return p.category === category;
-  });
+const allProducts = [...PRODUCTS, ...uploadedProducts];
+
+const filtered = allProducts.filter(p => {
+  if (p.roomType !== roomType) return false;
+
+  if (category === "all") return true;
+
+  return p.category === category;
+});
 
   filtered.forEach(item => {
     const card = document.createElement("div");
@@ -466,48 +477,32 @@ function updateSelectedSummary() {
     return;
   }
 
-  const grouped = {};
-  placedOverlays.forEach(entry => {
-    const id = entry.item.id;
-    if (!grouped[id]) grouped[id] = { item: entry.item, count: 0 };
-    grouped[id].count += 1;
-  });
-
-  Object.values(grouped).forEach(group => {
-    const { item, count } = group;
-    const cost = item.price * count;
-
+  placedOverlays.forEach((entry, index) => {
     const row = document.createElement("div");
     row.className = "selected-row";
 
     const label = document.createElement("span");
-    label.textContent = `${item.name} × ${count}`;
+    label.textContent = entry.item.name;
 
     const price = document.createElement("span");
-    price.textContent = "₹" + cost;
+    price.textContent = "₹" + entry.item.price;
 
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "Remove";
-    removeBtn.addEventListener("click", () => removeItem(item.id));
+
+    removeBtn.addEventListener("click", () => {
+      removeSingleItem(index);
+    });
 
     row.appendChild(label);
     row.appendChild(price);
     row.appendChild(removeBtn);
+
     selectedList.appendChild(row);
   });
 }
 
-function removeItem(itemId) {
-  placedOverlays.forEach(entry => {
-    if (entry.item.id === itemId) entry.el.remove();
-  });
-  placedOverlays = placedOverlays.filter(entry => entry.item.id !== itemId);
-  if (selectedOverlay && !placedOverlays.find(p => p.el === selectedOverlay)) {
-    selectedOverlay = null;
-  }
-  updateSelectedSummary();
-  updateCosts();
-}
+
 
 // COST: furniture + wall + labour
 function updateCosts() {
@@ -750,7 +745,82 @@ if (linkUser) {
     }
   });
 }
+// if (btnAddCustomProduct) {
+//   btnAddCustomProduct.addEventListener("click", () => {
+//     const name = customProductName.value.trim();
+//     const category = customProductCategory.value;
+//     const price = Number(customProductPrice.value);
+//     const file = customProductImage.files[0];
 
+//     if (!name || !price || !file) {
+//       alert("Please fill all fields and upload image.");
+//       return;
+//     }
+
+//     const reader = new FileReader();
+
+//     reader.onload = function (e) {
+//       const newProduct = {
+//         id: "custom_" + Date.now(),
+//         roomType: roomTypeSelect.value,
+//         category: category,
+//         name: name,
+//         price: price,
+//         image: e.target.result
+//       };
+
+//       uploadedProducts.push(newProduct);
+
+//       renderProducts();
+
+//       customProductName.value = "";
+//       customProductPrice.value = "";
+//       customProductImage.value = "";
+
+//       alert("Product added successfully!");
+//     };
+
+//     reader.readAsDataURL(file);
+//   });
+// }
+if (btnAddCustomProduct) {
+  btnAddCustomProduct.addEventListener("click", () => {
+    const name = customProductName.value.trim();
+    const category = customProductCategory.value;
+    const price = Number(customProductPrice.value);
+    const file = customProductImage.files[0];
+
+    if (!name || !price || !file) {
+      alert("Please fill all fields.");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      const newProduct = {
+        id: "custom_" + Date.now(),
+        roomType: roomTypeSelect.value,
+        category: category,
+        name: name,
+        price: price,
+        image: e.target.result
+      };
+
+      uploadedProducts.push(newProduct);
+
+      renderProducts();
+
+      customProductName.value = "";
+      customProductPrice.value = "";
+      customProductImage.value = "";
+
+      alert("Product added successfully!");
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
 // ===== INIT =====
 renderWallOptions();
 renderProducts();
